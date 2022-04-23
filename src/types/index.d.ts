@@ -9,10 +9,13 @@ export interface CalendarDay {
   isToday: boolean;
 }
 
+type Color = "blue" | "red" | "orange" | "green" | "purple" | "gray";
+
 export interface Event {
+  id: string | null;
   date: string;
   time: string;
   reminder: string;
   city: string;
-  color: string;
+  color: Color;
 }

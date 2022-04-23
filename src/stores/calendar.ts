@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import type { Event } from "@/types";
+import { v4 as uuidv4 } from "uuid";
 
 interface CalendarState {
   events: Event[];
@@ -12,12 +13,20 @@ export const useCalendarStore = defineStore({
   }),
   actions: {
     addEvent(event: Event): void {
-      this.events.push(event);
+      this.events.push({
+        ...event,
+        id: uuidv4(),
+      });
     },
-    editEvent(idx: number, event: Event): void {
-      this.events.splice(idx, 1, event);
+    editEvent(id: string, event: Event): void {
+      const idx = this.events.findIndex((event) => event.id === id);
+      this.events.splice(idx, 1, {
+        ...event,
+        id,
+      });
     },
-    removeEvent(idx: number): void {
+    removeEvent(id: string): void {
+      const idx = this.events.findIndex((event) => event.id === id);
       this.events.splice(idx, 1);
     },
   },

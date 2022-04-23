@@ -58,9 +58,15 @@ const calendarDays = computed<CalendarDay[]>(() => {
 
 const isReminderDialogOpen = ref<boolean>(false);
 const reminderDate = ref<Date>();
+const reminderId = ref<string | null>();
 
 const addReminder = (date?: Date): void => {
   reminderDate.value = date;
+  reminderId.value = null;
+  isReminderDialogOpen.value = true;
+};
+const editReminder = (id: string): void => {
+  reminderId.value = id;
   isReminderDialogOpen.value = true;
 };
 </script>
@@ -132,6 +138,7 @@ const addReminder = (date?: Date): void => {
                       :is-current-month="calendarDay.isCurrentMonth"
                       :is-today="calendarDay.isToday"
                       @click="addReminder"
+                      @editEvent="editReminder"
                     />
                   </div>
                 </div>
@@ -145,5 +152,6 @@ const addReminder = (date?: Date): void => {
   <AddReminderDialog
     v-model:isOpen="isReminderDialogOpen"
     :reminder-date="reminderDate"
+    :reminder-id="reminderId"
   />
 </template>

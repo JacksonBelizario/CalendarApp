@@ -13,34 +13,50 @@ import { useCalendarStore } from "@/stores/calendar";
 import type { Event } from "@/types";
 
 const props = defineProps<{
-  isOpen?: boolean;
+  isOpen: boolean;
+  reminderId?: string;
   reminderDate?: Date;
 }>();
 const emit = defineEmits<{
   (e: "update:isOpen", value: boolean): void;
 }>();
 
+const store = useCalendarStore();
+
 const isOpen = computed(() => props.isOpen);
 
 watch(isOpen, (open) => {
   if (open) {
-    event.date = format(props.reminderDate || new Date(), "yyyy-MM-dd");
-    event.time = "";
-    event.reminder = "";
-    event.city = "";
-    event.color = "blue";
+    if (props.reminderId) {
+      const ev = store.events.find((e) => e.id === props.reminderId);
+      if (!ev) {
+        return;
+      }
+      event.id = ev.id;
+      event.date = ev.date;
+      event.time = ev.time;
+      event.reminder = ev.reminder;
+      event.city = ev.city;
+      event.color = ev.color;
+    } else {
+      event.id = null;
+      event.date = format(props.reminderDate || new Date(), "yyyy-MM-dd");
+      event.time = "";
+      event.reminder = "";
+      event.city = "";
+      event.color = "blue";
+    }
   }
 });
 
 const event = reactive<Event>({
+  id: null,
   date: "",
   time: "",
   reminder: "",
   city: "",
-  color: "",
+  color: "blue",
 });
-
-const store = useCalendarStore();
 
 const close = (): void => {
   emit("update:isOpen", false);
@@ -54,7 +70,19 @@ const save = (): void => {
   if (!validateForm()) {
     return;
   }
-  store.addEvent(event);
+  if (event.id) {
+    store.editEvent(event.id, event);
+  } else {
+    store.addEvent(event);
+  }
+  close();
+};
+
+const remove = (): void => {
+  if (!event.id) {
+    return;
+  }
+  store.removeEvent(event.id);
   close();
 };
 </script>
@@ -148,8 +176,9 @@ const save = (): void => {
                       >
                         <option value="blue">Blue</option>
                         <option value="red">Red</option>
-                        <option value="yellow">Yellow</option>
+                        <option value="orange">Orange</option>
                         <option value="green">Green</option>
+                        <option value="purple">Purple</option>
                         <option value="gray">Gray</option>
                       </select>
                       <p class="text-sm text-red-500 hidden mt-3">
@@ -161,14 +190,19 @@ const save = (): void => {
                     Required fields are marked with an asterisk
                     <abbr title="Required field">*</abbr>
                   </p>
-                  <div
-                    class="mt-5 text-right md:space-x-3 md:block flex flex-col-reverse"
-                  >
+                  <div class="mt-5 space-x-3 flex justify-between">
                     <button
                       class="mb-2 md:mb-0 bg-white px-5 py-2 text-sm shadow-sm font-medium tracking-wider border text-gray-600 rounded-full hover:shadow-lg hover:bg-gray-100"
                       @click="close"
                     >
                       Cancel
+                    </button>
+                    <button
+                      v-if="event.id"
+                      class="mb-2 md:mb-0 bg-red-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-red-500"
+                      @click="remove"
+                    >
+                      Remove
                     </button>
                     <button
                       class="mb-2 md:mb-0 bg-sky-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-sky-500"
