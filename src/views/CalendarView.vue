@@ -9,6 +9,7 @@ import MonthSelector from "../components/MonthSelector.vue";
 import YearSelector from "../components/YearSelector.vue";
 import WeekdayItem from "../components/WeekdayItem.vue";
 import CalendarDayItem from "../components/CalendarDayItem.vue";
+import AddReminderDialog from "../components/AddReminderDialog.vue";
 
 const week: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -54,6 +55,12 @@ const calendarDays = computed<CalendarDay[]>(() => {
   }
   return days;
 });
+
+const isReminderDialogOpen = ref<boolean>(false);
+
+const addReminder = (): void => {
+  isReminderDialogOpen.value = true;
+};
 </script>
 
 <template>
@@ -122,6 +129,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
                       :date="calendarDay.date"
                       :is-current-month="calendarDay.isCurrentMonth"
                       :is-today="calendarDay.isToday"
+                      @click="addReminder"
                     />
                   </div>
                 </div>
@@ -132,4 +140,5 @@ const calendarDays = computed<CalendarDay[]>(() => {
       </div>
     </main>
   </div>
+  <AddReminderDialog v-model:isOpen="isReminderDialogOpen" />
 </template>
