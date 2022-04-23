@@ -1,10 +1,4 @@
-<script setup>
-defineProps({
-  modelValue: Number,
-  modelModifiers: { default: () => 0 },
-});
-defineEmits(["update:modelValue"]);
-
+<script setup lang="ts">
 import {
   Listbox,
   ListboxButton,
@@ -13,7 +7,14 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, SelectorIcon } from "@heroicons/vue/solid";
 
-const months = [
+defineProps<{
+  modelValue?: number;
+}>();
+defineEmits<{
+  (e: "update:modelValue", value: number): void;
+}>();
+
+const months: string[] = [
   "Jan",
   "Feb",
   "Mar",

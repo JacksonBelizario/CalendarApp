@@ -1,23 +1,25 @@
 <script setup lang="ts">
-import { reactive, computed } from "vue";
+import { reactive, ref, computed } from "vue";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/solid";
 import { subDays, addDays, isSameMonth, isSameDay } from "date-fns";
 
+import { SelectedDate, CalendarDay } from "../types";
+
 import MonthSelector from "../components/MonthSelector.vue";
 import YearSelector from "../components/YearSelector.vue";
-import Weekday from "../components/Weekday.vue";
-import CalendarDay from "../components/CalendarDay.vue";
+import WeekdayItem from "../components/WeekdayItem.vue";
+import CalendarDayItem from "../components/CalendarDayItem.vue";
 
-const week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const week: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const today = new Date();
 
-const selectedDate = reactive({
+const selectedDate = reactive<SelectedDate>({
   month: today.getMonth(),
   year: today.getFullYear(),
 });
 
-const showPastMonth = () => {
+const showPastMonth = (): void => {
   const pastMonth = selectedDate.month - 1;
   if (pastMonth == -1) {
     selectedDate.year--;
@@ -25,7 +27,7 @@ const showPastMonth = () => {
   selectedDate.month = pastMonth > -1 ? pastMonth : 11;
 };
 
-const showNextMonth = () => {
+const showNextMonth = (): void => {
   const nextMonth = selectedDate.month + 1;
   if (nextMonth == 12) {
     selectedDate.year++;
@@ -33,7 +35,7 @@ const showNextMonth = () => {
   selectedDate.month = nextMonth < 12 ? nextMonth : 0;
 };
 
-const calendarDays = computed(() => {
+const calendarDays = computed<CalendarDay[]>(() => {
   const firstDay = new Date(selectedDate.year, selectedDate.month);
 
   const dayOfWeek = firstDay.getDay();
@@ -105,7 +107,7 @@ const calendarDays = computed(() => {
                   <div
                     class="grid grid-cols-7 py-3 border-l border-r border-black border-opacity-10"
                   >
-                    <Weekday
+                    <WeekdayItem
                       v-for="weekday in week"
                       :key="weekday"
                       :weekday="weekday"
@@ -114,7 +116,7 @@ const calendarDays = computed(() => {
                   <div
                     class="grid grid-cols-7 gap-y-0.5 border border-black border-opacity-10"
                   >
-                    <CalendarDay
+                    <CalendarDayItem
                       v-for="(calendarDay, idx) in calendarDays"
                       :key="idx"
                       :date="calendarDay.date"

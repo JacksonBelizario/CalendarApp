@@ -4,12 +4,16 @@ defineProps<{
   isCurrentMonth?: boolean;
   isToday?: boolean;
 }>();
+defineEmits<{
+  (e: "click", id: number): void;
+}>();
 </script>
 
 <template>
   <div class="relative h-24 border-r border-b border-black border-opacity-10">
     <button
       type="button"
+      @click="$emit('click')"
       :class="[
         'relative w-8 h-8 flex justify-center items-center text-xs 2xl:text-sm focus:outline-none transition-colors',
         {

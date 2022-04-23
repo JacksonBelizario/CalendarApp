@@ -1,10 +1,4 @@
-<script setup>
-const props = defineProps({
-  modelValue: Number,
-  modelModifiers: { default: () => 0 },
-});
-defineEmits(["update:modelValue"]);
-
+<script setup lang="ts">
 import { computed } from "vue";
 import {
   Listbox,
@@ -14,7 +8,14 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, SelectorIcon } from "@heroicons/vue/solid";
 
-const years = computed(() => {
+const props = defineProps<{
+  modelValue?: number;
+}>();
+defineEmits<{
+  (e: "update:modelValue", value: number): void;
+}>();
+
+const years = computed<number[]>(() => {
   const result = [];
   for (let i = props.modelValue + 10; i > props.modelValue - 10; i--) {
     result.push(i);
