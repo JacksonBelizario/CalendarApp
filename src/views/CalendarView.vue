@@ -58,7 +58,7 @@ const calendarDays = computed<CalendarDay[]>(() => {
 
 const isReminderDialogOpen = ref<boolean>(false);
 const reminderDate = ref<Date>();
-const reminderId = ref<string | null>();
+const reminderId = ref<string | null>(null);
 
 const addReminder = (date?: Date): void => {
   reminderDate.value = date;

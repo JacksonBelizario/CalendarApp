@@ -11,10 +11,14 @@ import { format } from "date-fns";
 import CustomInput from "@/components/forms/CustomInput.vue";
 import { useCalendarStore } from "@/stores/calendar";
 import type { Event } from "@/types";
+import { debounce } from "@/utils";
+import WeatherApi from "@/api/weather";
+
+const weatherApi = new WeatherApi();
 
 const props = defineProps<{
   isOpen: boolean;
-  reminderId?: string;
+  reminderId?: string | null;
   reminderDate?: Date;
 }>();
 const emit = defineEmits<{
@@ -57,6 +61,17 @@ const event = reactive<Event>({
   city: "",
   color: "blue",
 });
+
+const city = computed(() => event.city);
+
+watch(
+  city,
+  debounce(async function (res) {
+    if (!res) return;
+    const { data } = await weatherApi.geocoding(res as string);
+    console.log({ res, data });
+  }, 500)
+);
 
 const close = (): void => {
   emit("update:isOpen", false);
