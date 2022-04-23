@@ -3,13 +3,13 @@ import { reactive, ref, computed } from "vue";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/solid";
 import { subDays, addDays, isSameMonth, isSameDay } from "date-fns";
 
-import { SelectedDate, CalendarDay } from "../types";
+import type { SelectedDate, CalendarDay } from "@/types";
 
-import MonthSelector from "../components/MonthSelector.vue";
-import YearSelector from "../components/YearSelector.vue";
-import WeekdayItem from "../components/WeekdayItem.vue";
-import CalendarDayItem from "../components/CalendarDayItem.vue";
-import AddReminderDialog from "../components/AddReminderDialog.vue";
+import MonthSelector from "@/components/MonthSelector.vue";
+import YearSelector from "@/components/YearSelector.vue";
+import WeekdayItem from "@/components/WeekdayItem.vue";
+import CalendarDayItem from "@/components/CalendarDayItem.vue";
+import AddReminderDialog from "@/components/AddReminderDialog.vue";
 
 const week: string[] = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
@@ -58,7 +58,8 @@ const calendarDays = computed<CalendarDay[]>(() => {
 
 const isReminderDialogOpen = ref<boolean>(false);
 
-const addReminder = (): void => {
+const addReminder = (date?: Date): void => {
+  console.log({ date });
   isReminderDialogOpen.value = true;
 };
 </script>

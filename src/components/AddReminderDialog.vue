@@ -68,7 +68,6 @@ function closeModal() {
                       <input
                         placeholder="Date"
                         class="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
-                        required="required"
                         type="date"
                       />
                       <p class="text-red-500 text-xs hidden">
@@ -82,7 +81,6 @@ function closeModal() {
                       <input
                         placeholder="Time"
                         class="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
-                        required="required"
                         type="time"
                       />
                       <p class="text-red-500 text-xs hidden">
@@ -123,7 +121,6 @@ function closeModal() {
                       </label>
                       <select
                         class="block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4 md:w-full"
-                        required="required"
                       >
                         <option value="">Blue</option>
                         <option value="">Red</option>

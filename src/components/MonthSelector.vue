@@ -8,7 +8,7 @@ import {
 import { CheckIcon, SelectorIcon } from "@heroicons/vue/solid";
 
 defineProps<{
-  modelValue?: number;
+  modelValue: number;
 }>();
 defineEmits<{
   (e: "update:modelValue", value: number): void;
