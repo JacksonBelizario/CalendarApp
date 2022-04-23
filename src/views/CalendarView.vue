@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import { reactive, computed } from "vue";
 import { ChevronLeftIcon, ChevronRightIcon } from "@heroicons/vue/solid";
+import { subDays, addDays, isSameMonth, isSameDay } from "date-fns";
 
 import MonthSelector from "../components/MonthSelector.vue";
 import YearSelector from "../components/YearSelector.vue";
@@ -8,43 +10,48 @@ import CalendarDay from "../components/CalendarDay.vue";
 
 const week = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const calendarDays = [
-  { day: "27" },
-  { day: "28" },
-  { day: "29" },
-  { day: "30" },
-  { day: "31" },
-  { day: "1", isCurrentMonth: true },
-  { day: "2", isCurrentMonth: true },
-  { day: "3", isCurrentMonth: true },
-  { day: "4", isCurrentMonth: true },
-  { day: "5", isCurrentMonth: true },
-  { day: "6", isCurrentMonth: true },
-  { day: "7", isCurrentMonth: true },
-  { day: "8", isCurrentMonth: true },
-  { day: "9", isCurrentMonth: true },
-  { day: "10", isCurrentMonth: true },
-  { day: "11", isCurrentMonth: true },
-  { day: "12", isCurrentMonth: true },
-  { day: "13", isCurrentMonth: true },
-  { day: "14", isCurrentMonth: true },
-  { day: "15", isCurrentMonth: true },
-  { day: "16", isCurrentMonth: true },
-  { day: "17", isCurrentMonth: true },
-  { day: "18", isCurrentMonth: true },
-  { day: "19", isCurrentMonth: true },
-  { day: "20", isCurrentMonth: true },
-  { day: "21", isCurrentMonth: true },
-  { day: "22", isCurrentMonth: true },
-  { day: "23", isCurrentMonth: true, isToday: true },
-  { day: "24", isCurrentMonth: true },
-  { day: "25", isCurrentMonth: true },
-  { day: "26", isCurrentMonth: true },
-  { day: "27", isCurrentMonth: true },
-  { day: "28", isCurrentMonth: true },
-  { day: "29", isCurrentMonth: true },
-  { day: "30", isCurrentMonth: true },
-];
+const today = new Date();
+
+const selectedDate = reactive({
+  month: today.getMonth(),
+  year: today.getFullYear(),
+});
+
+const showPastMonth = () => {
+  const pastMonth = selectedDate.month - 1;
+  if (pastMonth == -1) {
+    selectedDate.year--;
+  }
+  selectedDate.month = pastMonth > -1 ? pastMonth : 11;
+};
+
+const showNextMonth = () => {
+  const nextMonth = selectedDate.month + 1;
+  if (nextMonth == 12) {
+    selectedDate.year++;
+  }
+  selectedDate.month = nextMonth < 12 ? nextMonth : 0;
+};
+
+const calendarDays = computed(() => {
+  const firstDay = new Date(selectedDate.year, selectedDate.month);
+
+  const dayOfWeek = firstDay.getDay();
+
+  const initialDate = subDays(firstDay, dayOfWeek);
+
+  let date = new Date(initialDate);
+  const days = [];
+  for (let i = 0; i < 35; i++) {
+    days.push({
+      date: date,
+      isCurrentMonth: isSameMonth(date, firstDay),
+      isToday: isSameDay(date, today),
+    });
+    date = addDays(date, 1);
+  }
+  return days;
+});
 </script>
 
 <template>
@@ -68,6 +75,7 @@ const calendarDays = [
                       <button
                         type="button"
                         class="p-1.5 bg-white text-gray-600 transition-colors border border-transparent hover:bg-gray-100 hover:text-gray-900 focus:bg-sky-50 focus:text-gray-900 focus:border-sky-300 focus:ring focus:ring-sky-500 focus:ring-opacity-10 focus:outline-none"
+                        @click="showPastMonth"
                       >
                         <ChevronLeftIcon class="w-5 h-5" />
                       </button>
@@ -75,10 +83,10 @@ const calendarDays = [
                   </div>
                   <div class="px-1.5 space-x-1.5 flex flex-1">
                     <span class="flex-1 flex rounded-md">
-                      <MonthSelector />
+                      <MonthSelector v-model="selectedDate.month" />
                     </span>
                     <span class="flex-1 flex rounded-md">
-                      <YearSelector />
+                      <YearSelector v-model="selectedDate.year" />
                     </span>
                   </div>
                   <div class="flex-shrink-0">
@@ -86,6 +94,7 @@ const calendarDays = [
                       <button
                         type="button"
                         class="p-1.5 rounded-full bg-white text-gray-600 transition-colors border border-transparent hover:bg-gray-100 hover:text-gray-900 focus:bg-sky-50 focus:text-gray-900 focus:border-sky-300 focus:ring focus:ring-sky-500 focus:ring-opacity-10 focus:outline-none"
+                        @click="showNextMonth"
                       >
                         <ChevronRightIcon class="w-5 h-5" />
                       </button>
@@ -108,7 +117,7 @@ const calendarDays = [
                     <CalendarDay
                       v-for="(calendarDay, idx) in calendarDays"
                       :key="idx"
-                      :day="calendarDay.day"
+                      :date="calendarDay.date"
                       :is-current-month="calendarDay.isCurrentMonth"
                       :is-today="calendarDay.isToday"
                     />

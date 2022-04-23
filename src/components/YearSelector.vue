@@ -1,5 +1,11 @@
 <script setup>
-import { ref } from "vue";
+const props = defineProps({
+  modelValue: Number,
+  modelModifiers: { default: () => 0 },
+});
+defineEmits(["update:modelValue"]);
+
+import { computed } from "vue";
 import {
   Listbox,
   ListboxButton,
@@ -8,31 +14,26 @@ import {
 } from "@headlessui/vue";
 import { CheckIcon, SelectorIcon } from "@heroicons/vue/solid";
 
-const years = [
-  { year: "2028" },
-  { year: "2027" },
-  { year: "2026" },
-  { year: "2025" },
-  { year: "2024" },
-  { year: "2023" },
-  { year: "2022" },
-  { year: "2021" },
-  { year: "2020" },
-  { year: "2019" },
-  { year: "2018" },
-  { year: "2017" },
-];
-const selectedYear = ref(years[6]);
+const years = computed(() => {
+  const result = [];
+  for (let i = props.modelValue + 10; i > props.modelValue - 10; i--) {
+    result.push(i);
+  }
+  return result;
+});
 </script>
 
 <template>
   <div class="relative w-full">
-    <Listbox v-model="selectedYear">
+    <Listbox
+      :value="modelValue"
+      @update:modelValue="$emit('update:modelValue', $event)"
+    >
       <div class="relative mt-1">
         <ListboxButton
           class="px-3 py-1.5 block w-full leading-relaxed rounded-md bg-white text-xs 2xl:text-sm tracking-wide text-gray-600 font-semibold sm:font-medium transition-colors border border-transparent hover:bg-gray-100 hover:text-gray-900 focus:bg-sky-50 focus:text-gray-900 focus:border-sky-300 focus:ring focus:ring-sky-500 focus:ring-opacity-10 focus:outline-none uppercase"
         >
-          <span class="block truncate">{{ selectedYear.year }}</span>
+          <span class="block truncate">{{ modelValue }}</span>
           <span
             class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
           >
@@ -50,9 +51,9 @@ const selectedYear = ref(years[6]);
           >
             <ListboxOption
               v-slot="{ active, selected }"
-              v-for="item in years"
-              :key="item.year"
-              :value="item"
+              v-for="year in years"
+              :key="year"
+              :value="year"
               as="template"
             >
               <li
@@ -67,7 +68,7 @@ const selectedYear = ref(years[6]);
                     'block truncate',
                   ]"
                 >
-                  {{ item.year }}
+                  {{ year }}
                 </span>
                 <span
                   v-if="selected"

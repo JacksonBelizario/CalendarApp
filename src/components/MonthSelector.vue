@@ -1,5 +1,10 @@
 <script setup>
-import { ref } from "vue";
+defineProps({
+  modelValue: Number,
+  modelModifiers: { default: () => 0 },
+});
+defineEmits(["update:modelValue"]);
+
 import {
   Listbox,
   ListboxButton,
@@ -9,30 +14,32 @@ import {
 import { CheckIcon, SelectorIcon } from "@heroicons/vue/solid";
 
 const months = [
-  { month: "Jan" },
-  { month: "Feb" },
-  { month: "Mar" },
-  { month: "Apr" },
-  { month: "May" },
-  { month: "Jun" },
-  { month: "Jul" },
-  { month: "Aug" },
-  { month: "Sep" },
-  { month: "Oct" },
-  { month: "Nov" },
-  { month: "Dec" },
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
 ];
-const selectedMonth = ref(months[3]);
 </script>
 
 <template>
   <div class="relative w-full">
-    <Listbox v-model="selectedMonth">
+    <Listbox
+      :value="modelValue"
+      @update:modelValue="$emit('update:modelValue', $event)"
+    >
       <div class="relative mt-1">
         <ListboxButton
           class="px-3 py-1.5 block w-full leading-relaxed rounded-md bg-white text-xs 2xl:text-sm tracking-wide text-gray-600 font-semibold sm:font-medium transition-colors border border-transparent hover:bg-gray-100 hover:text-gray-900 focus:bg-sky-50 focus:text-gray-900 focus:border-sky-300 focus:ring focus:ring-sky-500 focus:ring-opacity-10 focus:outline-none uppercase"
         >
-          <span class="block truncate">{{ selectedMonth.month }}</span>
+          <span class="block truncate">{{ months[modelValue] }}</span>
           <span
             class="absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none"
           >
@@ -50,9 +57,9 @@ const selectedMonth = ref(months[3]);
           >
             <ListboxOption
               v-slot="{ active, selected }"
-              v-for="item in months"
-              :key="item.month"
-              :value="item"
+              v-for="(month, idx) in months"
+              :key="idx"
+              :value="idx"
               as="template"
             >
               <li
@@ -67,7 +74,7 @@ const selectedMonth = ref(months[3]);
                     'block truncate',
                   ]"
                 >
-                  {{ item.month }}
+                  {{ month }}
                 </span>
                 <span
                   v-if="selected"

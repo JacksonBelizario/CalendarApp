@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  day: string;
+  date: Date;
   isCurrentMonth?: boolean;
   isToday?: boolean;
 }>();
@@ -24,7 +24,7 @@ defineProps<{
         },
       ]"
     >
-      {{ day }}
+      {{ date.getDate() }}
     </button>
   </div>
 </template>
