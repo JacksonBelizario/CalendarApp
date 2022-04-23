@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { reactive, computed, watch } from "vue";
 import {
   TransitionRoot,
   TransitionChild,
@@ -6,22 +7,61 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@headlessui/vue";
+import { format } from "date-fns";
+import CustomInput from "@/components/forms/CustomInput.vue";
+import { useCalendarStore } from "@/stores/calendar";
+import type { Event } from "@/types";
 
-defineProps<{
+const props = defineProps<{
   isOpen?: boolean;
+  reminderDate?: Date;
 }>();
 const emit = defineEmits<{
   (e: "update:isOpen", value: boolean): void;
 }>();
 
-function closeModal() {
+const isOpen = computed(() => props.isOpen);
+
+watch(isOpen, (open) => {
+  if (open) {
+    event.date = format(props.reminderDate || new Date(), "yyyy-MM-dd");
+    event.time = "";
+    event.reminder = "";
+    event.city = "";
+    event.color = "blue";
+  }
+});
+
+const event = reactive<Event>({
+  date: "",
+  time: "",
+  reminder: "",
+  city: "",
+  color: "",
+});
+
+const store = useCalendarStore();
+
+const close = (): void => {
   emit("update:isOpen", false);
-}
+};
+
+const validateForm = (): boolean => {
+  return !!event.date && !!event.time && !!event.reminder;
+};
+
+const save = (): void => {
+  if (!validateForm()) {
+    return;
+  }
+  store.addEvent(event);
+  close();
+};
 </script>
 
 <template>
   <TransitionRoot appear :show="isOpen" as="template">
-    <Dialog as="div" @close="closeModal">
+    <Dialog as="div" @close="close">
       <div class="fixed inset-0 z-10 overflow-y-auto">
         <div class="min-h-screen px-4 text-center">
           <TransitionChild
@@ -62,57 +102,40 @@ function closeModal() {
                 <div class="form">
                   <div class="md:flex flex-row md:space-x-4 w-full text-xs">
                     <div class="mb-3 space-y-2 w-full text-xs">
-                      <label class="font-semibold text-gray-600 py-2">
-                        Date <abbr title="required">*</abbr>
-                      </label>
-                      <input
-                        placeholder="Date"
-                        class="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
+                      <CustomInput
+                        v-model="event.date"
+                        label="Date"
                         type="date"
+                        required
                       />
-                      <p class="text-red-500 text-xs hidden">
-                        Please fill out this field.
-                      </p>
                     </div>
                     <div class="mb-3 space-y-2 w-full text-xs">
-                      <label class="font-semibold text-gray-600 py-2">
-                        Time <abbr title="required">*</abbr>
-                      </label>
-                      <input
-                        placeholder="Time"
-                        class="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
+                      <CustomInput
+                        v-model="event.time"
+                        label="Time"
                         type="time"
+                        required
                       />
-                      <p class="text-red-500 text-xs hidden">
-                        Please fill out this field.
-                      </p>
                     </div>
                   </div>
                   <div class="mb-3 space-y-2 w-full text-xs">
-                    <label class="font-semibold text-gray-600 py-2">
-                      Reminder <abbr title="required">*</abbr>
-                    </label>
-                    <div
-                      class="flex flex-wrap items-stretch w-full mb-4 relative"
-                    >
-                      <input
-                        type="text"
-                        class="flex-shrink flex-grow flex-auto leading-normal w-px flex-1 border border-l-0 h-10 border-grey-light rounded-lg px-3 relative focus:border-blue focus:shadow"
-                        placeholder="Enter your reminder..."
-                        maxlength="30"
-                      />
-                    </div>
-                    <p class="text-xs text-gray-400 text-right my-3">0 / 30</p>
+                    <CustomInput
+                      v-model="event.reminder"
+                      label="Reminder"
+                      type="text"
+                      placeholder="Enter your reminder..."
+                      maxlength="30"
+                      required
+                    />
                   </div>
                   <div class="md:flex md:flex-row md:space-x-4 w-full text-xs">
                     <div class="w-full flex flex-col mb-3">
-                      <label class="font-semibold text-gray-600 py-2">
-                        City <abbr title="required">*</abbr>
-                      </label>
-                      <input
-                        placeholder="City, State"
-                        class="appearance-none block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4"
+                      <CustomInput
+                        v-model="event.city"
+                        label="City"
                         type="text"
+                        placeholder="City, State"
+                        required
                       />
                     </div>
                     <div class="w-full flex flex-col mb-3">
@@ -120,13 +143,14 @@ function closeModal() {
                         Color <abbr title="required">*</abbr>
                       </label>
                       <select
+                        v-model="event.color"
                         class="block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4 md:w-full"
                       >
-                        <option value="">Blue</option>
-                        <option value="">Red</option>
-                        <option value="">Yellow</option>
-                        <option value="">Green</option>
-                        <option value="">Gray</option>
+                        <option value="blue">Blue</option>
+                        <option value="red">Red</option>
+                        <option value="yellow">Yellow</option>
+                        <option value="green">Green</option>
+                        <option value="gray">Gray</option>
                       </select>
                       <p class="text-sm text-red-500 hidden mt-3">
                         Please fill out this field.
@@ -142,13 +166,13 @@ function closeModal() {
                   >
                     <button
                       class="mb-2 md:mb-0 bg-white px-5 py-2 text-sm shadow-sm font-medium tracking-wider border text-gray-600 rounded-full hover:shadow-lg hover:bg-gray-100"
-                      @click="closeModal"
+                      @click="close"
                     >
                       Cancel
                     </button>
                     <button
                       class="mb-2 md:mb-0 bg-sky-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-sky-500"
-                      @click="closeModal"
+                      @click="save"
                     >
                       Save
                     </button>

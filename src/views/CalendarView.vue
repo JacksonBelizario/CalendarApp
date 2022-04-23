@@ -57,9 +57,10 @@ const calendarDays = computed<CalendarDay[]>(() => {
 });
 
 const isReminderDialogOpen = ref<boolean>(false);
+const reminderDate = ref<Date>();
 
 const addReminder = (date?: Date): void => {
-  console.log({ date });
+  reminderDate.value = date;
   isReminderDialogOpen.value = true;
 };
 </script>
@@ -141,5 +142,8 @@ const addReminder = (date?: Date): void => {
       </div>
     </main>
   </div>
-  <AddReminderDialog v-model:isOpen="isReminderDialogOpen" />
+  <AddReminderDialog
+    v-model:isOpen="isReminderDialogOpen"
+    :reminder-date="reminderDate"
+  />
 </template>
