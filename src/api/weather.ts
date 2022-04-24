@@ -1,5 +1,6 @@
+import type { Weather } from "@/types";
 import axios, { Axios } from "axios";
-import { addDays, isBefore, isAfter, isSameDay } from "date-fns";
+import { addDays, subDays, isBefore, isAfter, isSameDay } from "date-fns";
 
 interface GeocodeResult {
   name: string;
@@ -53,35 +54,81 @@ export default class WeatherApi {
   /**
    * https://openweathermap.org/api/one-call-api#current
    */
-  async current(
+  async get(
     lat: number,
     lon: number,
     date: Date
-  ): Promise<WeatherResult | null> {
+  ): Promise<Weather | undefined> {
     const today = new Date();
+    const pastDay = subDays(new Date(), 6);
     const lastDay = addDays(new Date(), 7);
-    /**
-     * I didn't find the weather history for free to get another days
-     * So, I used this api which returns weather for the current week
-     */
-    if (
-      !isSameDay(date, today) &&
-      (isBefore(date, today) || isAfter(date, lastDay))
-    ) {
-      return null;
-    }
-    const { data } = await this.api.get("/data/2.5/onecall", {
-      params: {
-        lat,
-        lon,
-        units: "metric",
-        exclude: "alerts,minutely,hourly",
-        appid: this.apiKey,
-      },
-    });
 
-    return data.daily.find((item: WeatherResult) =>
-      isSameDay(new Date(item.dt * 1000), date)
-    );
+    if (isBefore(date, pastDay) || isAfter(date, lastDay)) {
+      return undefined;
+    }
+
+    if (isSameDay(date, today) || isAfter(date, today)) {
+      /**
+       * I didn't find the weather history for free to get specific days
+       * So, I used this api which returns weather for the current week
+       */
+      const { data } = await this.api.get("/data/2.5/onecall", {
+        params: {
+          lat,
+          lon,
+          units: "metric",
+          exclude: "alerts,minutely,hourly",
+          appid: this.apiKey,
+        },
+      });
+
+      const result = data.daily.find((item: WeatherResult) =>
+        isSameDay(new Date(item.dt * 1000), date)
+      );
+
+      if (!result) {
+        return undefined;
+      }
+
+      return {
+        temp: {
+          day: Math.trunc(result.temp.day),
+          max: Math.trunc(result.temp.max),
+          min: Math.trunc(result.temp.min),
+        },
+        description: result.weather[0].description,
+        icon: result.weather[0].icon,
+        humidity: result.humidity,
+        wind_speed: result.wind_speed,
+        uvi: result.uvi,
+      };
+    } else {
+      const { data } = await this.api.get("/data/2.5/onecall/timemachine", {
+        params: {
+          lat,
+          lon,
+          dt: date.valueOf() / 1000,
+          units: "metric",
+          appid: this.apiKey,
+        },
+      });
+
+      if (!data.current) {
+        return undefined;
+      }
+
+      return {
+        temp: {
+          day: Math.trunc(data.current.temp),
+          max: null,
+          min: null,
+        },
+        description: data.current.weather[0].description,
+        icon: data.current.weather[0].icon,
+        humidity: data.current.humidity,
+        wind_speed: data.current.wind_speed,
+        uvi: data.current.uvi,
+      };
+    }
   }
 }

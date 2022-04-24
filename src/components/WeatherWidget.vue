@@ -37,7 +37,7 @@ const imageUrl = computed(
         </div>
         <div class="flex flex-col w-28 items-center">
           <div class="capitalize">{{ weather.description }}</div>
-          <div class="flex flex-row mt-1">
+          <div v-if="weather.temp.max" class="flex flex-row mt-1">
             <span class="text-sm mt-0.5">
               <ArrowNarrowUpIcon class="w-4 h-4" />
             </span>
@@ -45,7 +45,7 @@ const imageUrl = computed(
               {{ weather.temp.max }}°C
             </span>
           </div>
-          <div class="flex flex-row align-center">
+          <div v-if="weather.temp.min" class="flex flex-row align-center">
             <span class="text-sm mt-0.5">
               <ArrowNarrowDownIcon class="w-4 h-4" />
             </span>

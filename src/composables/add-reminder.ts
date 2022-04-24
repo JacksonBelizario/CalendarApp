@@ -51,26 +51,13 @@ export function useAddReminder(
 
   watchEffect(async () => {
     if (event.date && event.city) {
-      const result = await weatherApi.current(
+      const result = await weatherApi.get(
         event.city.lat,
         event.city.lon,
         parse(event.date, "yyyy-MM-dd", new Date())
       );
 
-      event.weather = result
-        ? {
-            temp: {
-              day: Math.trunc(result.temp.day),
-              max: Math.trunc(result.temp.max),
-              min: Math.trunc(result.temp.min),
-            },
-            description: result.weather[0].description,
-            icon: result.weather[0].icon,
-            humidity: result.humidity,
-            wind_speed: result.wind_speed,
-            uvi: result.uvi,
-          }
-        : undefined;
+      event.weather = result;
     }
   });
 

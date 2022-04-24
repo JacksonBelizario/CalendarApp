@@ -19,8 +19,8 @@ export interface City {
 export interface Weather {
   temp: {
     day: number;
-    max: number;
-    min: number;
+    max: number | null;
+    min: number | null;
   };
   description: string;
   icon: string;
