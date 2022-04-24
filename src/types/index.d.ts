@@ -10,12 +10,17 @@ export interface CalendarDay {
 }
 
 type Color = "blue" | "red" | "orange" | "green" | "purple" | "gray";
+export interface City {
+  name: string;
+  lat: number;
+  lon: number;
+}
 
 export interface Event {
   id: string | null;
   date: string;
   time: string;
   reminder: string;
-  city: string;
+  city?: City;
   color: Color;
 }

@@ -9,12 +9,9 @@ import {
 } from "@headlessui/vue";
 import { format } from "date-fns";
 import CustomInput from "@/components/forms/CustomInput.vue";
+import CitySelector from "@/components/CitySelector.vue";
 import { useCalendarStore } from "@/stores/calendar";
 import type { Event } from "@/types";
-import { debounce } from "@/utils";
-import WeatherApi from "@/api/weather";
-
-const weatherApi = new WeatherApi();
 
 const props = defineProps<{
   isOpen: boolean;
@@ -47,7 +44,7 @@ watch(isOpen, (open) => {
       event.date = format(props.reminderDate || new Date(), "yyyy-MM-dd");
       event.time = "";
       event.reminder = "";
-      event.city = "";
+      event.city = undefined;
       event.color = "blue";
     }
   }
@@ -58,20 +55,9 @@ const event = reactive<Event>({
   date: "",
   time: "",
   reminder: "",
-  city: "",
+  city: undefined,
   color: "blue",
 });
-
-const city = computed(() => event.city);
-
-watch(
-  city,
-  debounce(async function (res) {
-    if (!res) return;
-    const { data } = await weatherApi.geocoding(res as string);
-    console.log({ res, data });
-  }, 500)
-);
 
 const close = (): void => {
   emit("update:isOpen", false);
@@ -173,13 +159,7 @@ const remove = (): void => {
                   </div>
                   <div class="md:flex md:flex-row md:space-x-4 w-full text-xs">
                     <div class="w-full flex flex-col mb-3">
-                      <CustomInput
-                        v-model="event.city"
-                        label="City"
-                        type="text"
-                        placeholder="City, State"
-                        required
-                      />
+                      <CitySelector v-model="event.city" />
                     </div>
                     <div class="w-full flex flex-col mb-3">
                       <label class="font-semibold text-gray-600 py-2">

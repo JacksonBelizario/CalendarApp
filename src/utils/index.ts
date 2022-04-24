@@ -1,3 +1,5 @@
+import { ref, customRef } from "vue";
+
 export function debounce<A = unknown>(
   fn: (...args: A[]) => void,
   delay = 500,
@@ -12,4 +14,27 @@ export function debounce<A = unknown>(
       fn(...args);
     }, delay);
   };
+}
+
+export function useDebouncedRef(
+  initialValue: any,
+  delay = 500,
+  immediate = false
+) {
+  const state = ref(initialValue);
+  const debouncedRef = customRef((track, trigger) => ({
+    get() {
+      track();
+      return state.value;
+    },
+    set: debounce(
+      (value) => {
+        state.value = value;
+        trigger();
+      },
+      delay,
+      immediate
+    ),
+  }));
+  return debouncedRef;
 }
