@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed, watch } from "vue";
+import { reactive, computed, watch, watchEffect } from "vue";
 import {
   TransitionRoot,
   TransitionChild,
@@ -7,11 +7,16 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@headlessui/vue";
-import { format } from "date-fns";
+import { InformationCircleIcon } from "@heroicons/vue/outline";
+import { format, parse } from "date-fns";
 import CustomInput from "@/components/forms/CustomInput.vue";
 import CitySelector from "@/components/CitySelector.vue";
+import WeatherWidget from "@/components/WeatherWidget.vue";
 import { useCalendarStore } from "@/stores/calendar";
 import type { Event } from "@/types";
+import WeatherApi from "@/api/weather";
+
+const weatherApi = new WeatherApi();
 
 const props = defineProps<{
   isOpen: boolean;
@@ -26,6 +31,16 @@ const store = useCalendarStore();
 
 const isOpen = computed(() => props.isOpen);
 
+const event = reactive<Event>({
+  id: null,
+  date: "",
+  time: "",
+  reminder: "",
+  city: undefined,
+  color: "blue",
+  weather: undefined,
+});
+
 watch(isOpen, (open) => {
   if (open) {
     if (props.reminderId) {
@@ -39,6 +54,7 @@ watch(isOpen, (open) => {
       event.reminder = ev.reminder;
       event.city = ev.city;
       event.color = ev.color;
+      event.weather = ev.weather;
     } else {
       event.id = null;
       event.date = format(props.reminderDate || new Date(), "yyyy-MM-dd");
@@ -46,17 +62,34 @@ watch(isOpen, (open) => {
       event.reminder = "";
       event.city = undefined;
       event.color = "blue";
+      event.weather = undefined;
     }
   }
 });
 
-const event = reactive<Event>({
-  id: null,
-  date: "",
-  time: "",
-  reminder: "",
-  city: undefined,
-  color: "blue",
+watchEffect(async () => {
+  if (event.date && event.city) {
+    const result = await weatherApi.current(
+      event.city.lat,
+      event.city.lon,
+      parse(event.date, "yyyy-MM-dd", new Date())
+    );
+
+    event.weather = result
+      ? {
+          temp: {
+            day: Math.trunc(result.temp.day),
+            max: Math.trunc(result.temp.max),
+            min: Math.trunc(result.temp.min),
+          },
+          description: result.weather[0].description,
+          icon: result.weather[0].icon,
+          humidity: result.humidity,
+          wind_speed: result.wind_speed,
+          uvi: result.uvi,
+        }
+      : undefined;
+  }
 });
 
 const close = (): void => {
@@ -205,6 +238,35 @@ const remove = (): void => {
                     >
                       Save
                     </button>
+                  </div>
+                  <div v-if="event.city && event.date" class="mt-5">
+                    <WeatherWidget
+                      v-if="event.weather"
+                      :city="event.city.name"
+                      :date="event.date"
+                      :weather="event.weather"
+                    />
+                    <div
+                      v-else
+                      class="p-4 mb-4 bg-blue-100 rounded-lg dark:bg-blue-200"
+                      role="alert"
+                    >
+                      <div class="flex items-center">
+                        <InformationCircleIcon
+                          class="mr-2 w-5 h-5 text-blue-700 dark:text-blue-800"
+                        />
+                        <h3
+                          class="text-lg font-medium text-blue-700 dark:text-blue-800"
+                        >
+                          Weather not available
+                        </h3>
+                      </div>
+                      <div
+                        class="mt-2 mb-4 text-sm text-blue-700 dark:text-blue-800"
+                      >
+                        Probably the given date is not available on Weather API
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -16,6 +16,18 @@ export interface City {
   lon: number;
 }
 
+export interface Weather {
+  temp: {
+    day: number;
+    max: number;
+    min: number;
+  };
+  description: string;
+  icon: string;
+  humidity: number;
+  wind_speed: number;
+  uvi: number;
+}
 export interface Event {
   id: string | null;
   date: string;
@@ -23,4 +35,5 @@ export interface Event {
   reminder: string;
   city?: City;
   color: Color;
+  weather?: Weather;
 }

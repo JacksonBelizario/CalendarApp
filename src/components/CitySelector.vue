@@ -52,9 +52,9 @@ watch(
       if (!res) {
         return;
       }
-      const { data } = await weatherApi.geocoding(res as string);
+      const data = await weatherApi.geocoding(res as string);
 
-      cities.value = data.map((item: any) => ({
+      cities.value = data.map((item) => ({
         name: `${item.name}, ${item.state}, ${item.country}`,
         lat: item.lat,
         lon: item.lon,
