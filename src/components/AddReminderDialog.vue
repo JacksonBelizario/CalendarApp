@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, computed, watch, watchEffect } from "vue";
+import { toRefs } from "vue";
 import {
   TransitionRoot,
   TransitionChild,
@@ -7,116 +7,44 @@ import {
   DialogOverlay,
   DialogTitle,
 } from "@headlessui/vue";
-import { InformationCircleIcon } from "@heroicons/vue/outline";
-import { format, parse } from "date-fns";
 import CustomInput from "@/components/forms/CustomInput.vue";
 import CitySelector from "@/components/CitySelector.vue";
 import WeatherWidget from "@/components/WeatherWidget.vue";
-import { useCalendarStore } from "@/stores/calendar";
-import type { Event } from "@/types";
-import WeatherApi from "@/api/weather";
-
-const weatherApi = new WeatherApi();
+import { InformationCircleIcon } from "@heroicons/vue/outline";
+import { useAddReminder } from "@/composables/add-reminder";
 
 const props = defineProps<{
   isOpen: boolean;
-  reminderId?: string | null;
-  reminderDate?: Date;
+  reminderId: string;
+  reminderDate: Date;
 }>();
 const emit = defineEmits<{
   (e: "update:isOpen", value: boolean): void;
 }>();
 
-const store = useCalendarStore();
+const { isOpen, reminderId, reminderDate } = toRefs(props);
 
-const isOpen = computed(() => props.isOpen);
-
-const event = reactive<Event>({
-  id: null,
-  date: "",
-  time: "",
-  reminder: "",
-  city: undefined,
-  color: "blue",
-  weather: undefined,
-});
-
-watch(isOpen, (open) => {
-  if (open) {
-    if (props.reminderId) {
-      const ev = store.events.find((e) => e.id === props.reminderId);
-      if (!ev) {
-        return;
-      }
-      event.id = ev.id;
-      event.date = ev.date;
-      event.time = ev.time;
-      event.reminder = ev.reminder;
-      event.city = ev.city;
-      event.color = ev.color;
-      event.weather = ev.weather;
-    } else {
-      event.id = null;
-      event.date = format(props.reminderDate || new Date(), "yyyy-MM-dd");
-      event.time = "";
-      event.reminder = "";
-      event.city = undefined;
-      event.color = "blue";
-      event.weather = undefined;
-    }
-  }
-});
-
-watchEffect(async () => {
-  if (event.date && event.city) {
-    const result = await weatherApi.current(
-      event.city.lat,
-      event.city.lon,
-      parse(event.date, "yyyy-MM-dd", new Date())
-    );
-
-    event.weather = result
-      ? {
-          temp: {
-            day: Math.trunc(result.temp.day),
-            max: Math.trunc(result.temp.max),
-            min: Math.trunc(result.temp.min),
-          },
-          description: result.weather[0].description,
-          icon: result.weather[0].icon,
-          humidity: result.humidity,
-          wind_speed: result.wind_speed,
-          uvi: result.uvi,
-        }
-      : undefined;
-  }
-});
+const { event, saveEvent, removeEvent } = useAddReminder(
+  isOpen,
+  reminderId,
+  reminderDate
+);
 
 const close = (): void => {
   emit("update:isOpen", false);
 };
 
-const validateForm = (): boolean => {
-  return !!event.date && !!event.time && !!event.reminder;
-};
-
 const save = (): void => {
-  if (!validateForm()) {
+  if (!saveEvent()) {
     return;
-  }
-  if (event.id) {
-    store.editEvent(event.id, event);
-  } else {
-    store.addEvent(event);
   }
   close();
 };
 
 const remove = (): void => {
-  if (!event.id) {
+  if (!removeEvent()) {
     return;
   }
-  store.removeEvent(event.id);
   close();
 };
 </script>
