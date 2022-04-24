@@ -128,7 +128,7 @@ const remove = (): void => {
                       </label>
                       <select
                         v-model="event.color"
-                        class="block w-full bg-grey-lighter text-grey-darker border border-grey-lighter rounded-lg h-10 px-4 md:w-full"
+                        class="block w-full bg-white text-grey-darker border border-grey-lighter rounded-lg focus:ring-blue-500 focus:border-blue-600 focus:border-2 h-10 px-4 mt-1 md:w-full"
                       >
                         <option value="blue">Blue</option>
                         <option value="red">Red</option>

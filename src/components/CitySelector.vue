@@ -116,7 +116,7 @@ watch(
             <li
               class="cursor-default select-none relative py-2 pl-10 pr-4"
               :class="{
-                'text-white bg-teal-600': active,
+                'text-white bg-sky-400': active,
                 'text-gray-900': !active,
               }"
             >
@@ -129,7 +129,7 @@ watch(
               <span
                 v-if="selected"
                 class="absolute inset-y-0 left-0 flex items-center pl-3"
-                :class="{ 'text-white': active, 'text-teal-600': !active }"
+                :class="{ 'text-white': active, 'text-sky-400': !active }"
               >
                 <CheckIcon class="w-5 h-5" aria-hidden="true" />
               </span>

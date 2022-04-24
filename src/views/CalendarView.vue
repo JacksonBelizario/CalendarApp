@@ -117,6 +117,14 @@ const editReminder = (id: string): void => {
                       </button>
                     </span>
                   </div>
+                  <div class="flex-shrink-0 border-l ml-3 pl-3 border-gray-300">
+                    <button
+                      class="mb-2 md:mb-0 bg-sky-400 px-5 py-2 text-sm shadow-sm font-medium tracking-wider text-white rounded-full hover:shadow-lg hover:bg-sky-500"
+                      @click="addReminder()"
+                    >
+                      Add Reminder
+                    </button>
+                  </div>
                 </div>
                 <div>
                   <div
