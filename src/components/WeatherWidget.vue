@@ -13,19 +13,30 @@ const props = defineProps<{
 const dateFormatted = computed(() =>
   parse(props.date, "yyyy-MM-dd", new Date()).toDateString()
 );
+
+const imageUrl = computed(
+  () => `http://openweathermap.org/img/wn/${props.weather.icon}@2x.png`
+);
 </script>
 
 <template>
   <div class="flex items-center justify-center">
     <div
-      class="flex flex-col bg-white border border-grey-lighter rounded p-4 w-full"
+      class="flex flex-col bg-sky-200 border border-grey-lighter rounded p-4 w-full"
     >
       <div class="font-bold text-xl">{{ city }}</div>
       <div class="text-sm text-gray-500">{{ dateFormatted }}</div>
-      <div class="flex flex-row items-center justify-center mt-3">
-        <div class="font-medium text-6xl">{{ weather.temp.day }}°</div>
-        <div class="flex flex-col items-center ml-6">
-          <div>{{ weather.description }}</div>
+      <div class="flex flex-row items-center justify-center">
+        <div
+          class="text-6xl self-center inline-flex items-center justify-center rounded-lg text-indigo-400 w-28 h-28"
+        >
+          <img class="w-28 h-28" :src="imageUrl" :alt="weather.description" />
+        </div>
+        <div class="font-medium w-28 text-center text-6xl ml-6">
+          {{ weather.temp.day }}°
+        </div>
+        <div class="flex flex-col w-28 items-center">
+          <div class="capitalize">{{ weather.description }}</div>
           <div class="flex flex-row mt-1">
             <span class="text-sm mt-0.5">
               <ArrowNarrowUpIcon class="w-4 h-4" />
