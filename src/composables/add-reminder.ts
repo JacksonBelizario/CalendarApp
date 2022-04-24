@@ -75,7 +75,12 @@ export function useAddReminder(
   });
 
   const validateForm = (): boolean => {
-    return !!event.date && !!event.time && !!event.reminder;
+    return (
+      !!event.date &&
+      !!event.time &&
+      !!event.reminder &&
+      event.reminder.length <= 30
+    );
   };
 
   const saveEvent = (): boolean => {
