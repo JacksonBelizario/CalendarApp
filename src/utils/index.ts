@@ -17,6 +17,7 @@ export function debounce<A = unknown>(
 }
 
 export function useDebouncedRef(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   initialValue: any,
   delay = 500,
   immediate = false
