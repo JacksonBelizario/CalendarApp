@@ -110,10 +110,10 @@ export function useAddReminder(
     if (!event.time) {
       errors.value.time = "Time is required";
     }
-    if (!event.reminder || event.reminder.length > 30) {
+    if (!event.reminder) {
       errors.value.reminder = "Enter your reminder";
     }
-    if (!event.reminder || event.reminder.length > 30) {
+    if (event.reminder && event.reminder.length > 30) {
       errors.value.reminder = "Reminder must be smaller than 30 chars";
     }
     if (!event.city) {
