@@ -1,4 +1,4 @@
-import { reactive, watch, watchEffect } from "vue";
+import { reactive, ref, computed, watch, watchEffect } from "vue";
 import type { Ref } from "vue";
 import { format, parse } from "date-fns";
 import { useCalendarStore } from "@/stores/calendar";
@@ -6,6 +6,14 @@ import type { Event } from "@/types";
 import WeatherApi from "@/api/weather";
 
 const weatherApi = new WeatherApi();
+
+interface ReminderErrors {
+  date: string | null;
+  time: string | null;
+  reminder: string | null;
+  city: string | null;
+  color: string | null;
+}
 
 export function useAddReminder(
   isOpen: Ref<boolean>,
@@ -21,6 +29,13 @@ export function useAddReminder(
     city: undefined,
     color: "blue",
     weather: undefined,
+  });
+  const errors = ref<ReminderErrors>({
+    date: null,
+    time: null,
+    reminder: null,
+    city: null,
+    color: null,
   });
 
   watch(isOpen, (open) => {
@@ -61,13 +76,54 @@ export function useAddReminder(
     }
   });
 
+  const hasErrors = computed(
+    () => Object.values(errors.value).filter((err) => !!err).length > 0
+  );
+
+  const resetErrors = () => {
+    if (!hasErrors.value) {
+      return;
+    }
+    if (event.date && errors.value.date) {
+      errors.value.date = null;
+    }
+    if (event.time && errors.value.time) {
+      errors.value.time = null;
+    }
+    if (event.reminder && errors.value.reminder) {
+      errors.value.reminder = null;
+    }
+    if (event.city && errors.value.city) {
+      errors.value.city = null;
+    }
+    if (event.color && errors.value.color) {
+      errors.value.color = null;
+    }
+  };
+
+  watch(event, resetErrors);
+
   const validateForm = (): boolean => {
-    return (
-      !!event.date &&
-      !!event.time &&
-      !!event.reminder &&
-      event.reminder.length <= 30
-    );
+    if (!event.date) {
+      errors.value.date = "Date is required";
+    }
+    if (!event.time) {
+      errors.value.time = "Time is required";
+    }
+    if (!event.reminder || event.reminder.length > 30) {
+      errors.value.reminder = "Enter your reminder";
+    }
+    if (!event.reminder || event.reminder.length > 30) {
+      errors.value.reminder = "Reminder must be smaller than 30 chars";
+    }
+    if (!event.city) {
+      errors.value.city = "City is required";
+    }
+    if (!event.color) {
+      errors.value.color = "Color is required";
+    }
+
+    return !hasErrors.value;
   };
 
   const saveEvent = (): boolean => {
@@ -94,6 +150,8 @@ export function useAddReminder(
 
   return {
     event,
+    errors,
+    hasErrors,
     saveEvent,
     removeEvent,
   };

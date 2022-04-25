@@ -24,7 +24,7 @@ const emit = defineEmits<{
 
 const { isOpen, reminderId, reminderDate } = toRefs(props);
 
-const { event, saveEvent, removeEvent } = useAddReminder(
+const { event, errors, saveEvent, removeEvent } = useAddReminder(
   isOpen,
   reminderId,
   reminderDate
@@ -97,6 +97,7 @@ const remove = (): void => {
                         label="Date"
                         type="date"
                         required
+                        :error="errors.date"
                       />
                     </div>
                     <div class="mb-3 space-y-2 w-full text-xs">
@@ -105,6 +106,7 @@ const remove = (): void => {
                         label="Time"
                         type="time"
                         required
+                        :error="errors.time"
                       />
                     </div>
                   </div>
@@ -116,11 +118,16 @@ const remove = (): void => {
                       placeholder="Enter your reminder..."
                       maxlength="30"
                       required
+                      :error="errors.reminder"
                     />
                   </div>
                   <div class="md:flex md:flex-row md:space-x-4 w-full text-xs">
                     <div class="w-full flex flex-col mb-3">
-                      <CitySelector v-model="event.city" />
+                      <CitySelector
+                        v-model="event.city"
+                        required
+                        :error="errors.city"
+                      />
                     </div>
                     <div class="w-full flex flex-col mb-3">
                       <label class="font-semibold text-gray-600 py-2">
@@ -139,6 +146,14 @@ const remove = (): void => {
                       </select>
                       <p class="text-sm text-red-500 hidden mt-3">
                         Please fill out this field.
+                      </p>
+                      <p
+                        :class="[
+                          'text-red-500 text-xs',
+                          { hidden: !errors.color },
+                        ]"
+                      >
+                        {{ errors.color }}
                       </p>
                     </div>
                   </div>

@@ -16,7 +16,7 @@ describe("Add Reminder", () => {
     const reminderId = ref("");
     const reminderDate = ref(new Date());
 
-    const { event, saveEvent } = useAddReminder(
+    const { event, hasErrors, saveEvent } = useAddReminder(
       isOpen,
       reminderId,
       reminderDate
@@ -35,6 +35,7 @@ describe("Add Reminder", () => {
     const result = saveEvent();
 
     expect(result).toBe(true);
+    expect(hasErrors.value).toBe(false);
   });
 
   it("Call saveEvent on a reminder with longer text should not save", () => {
@@ -42,7 +43,7 @@ describe("Add Reminder", () => {
     const reminderId = ref("");
     const reminderDate = ref(new Date());
 
-    const { event, saveEvent } = useAddReminder(
+    const { event, errors, hasErrors, saveEvent } = useAddReminder(
       isOpen,
       reminderId,
       reminderDate
@@ -61,5 +62,9 @@ describe("Add Reminder", () => {
     const result = saveEvent();
 
     expect(result).toBe(false);
+    expect(hasErrors.value).toBe(true);
+    expect(errors.value.reminder).toBe(
+      "Reminder must be smaller than 30 chars"
+    );
   });
 });

@@ -7,6 +7,7 @@ const props = defineProps<{
   required?: boolean;
   placeholder?: string;
   maxlength?: string;
+  error?: string | null;
 }>();
 const emit = defineEmits<{
   (e: "update:modelValue", value?: string): void;
@@ -31,8 +32,8 @@ const chars = computed(() => (props.modelValue ? props.modelValue.length : 0));
     :maxlength="maxlength"
     @input="onInputChange($event.target as HTMLInputElement)"
   />
-  <p v-if="required" class="text-red-500 text-xs hidden">
-    Please fill out this field.
+  <p :class="['text-red-500 text-xs', { hidden: !error }]">
+    {{ error }}
   </p>
   <p v-if="maxlength" class="text-xs text-gray-400 text-right my-3">
     {{ chars }} / {{ maxlength }}

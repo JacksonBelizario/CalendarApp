@@ -15,6 +15,8 @@ import type { City } from "@/types";
 
 const props = defineProps<{
   modelValue?: City;
+  required?: boolean;
+  error?: string | null;
 }>();
 const emit = defineEmits<{
   (e: "update:modelValue", value: City): void;
@@ -71,7 +73,7 @@ watch(
 
 <template>
   <label class="font-semibold text-gray-600 py-2">
-    City <abbr title="required">*</abbr>
+    City <abbr v-if="required" title="required">*</abbr>
   </label>
   <Combobox v-model="selected">
     <div class="relative mt-1">
@@ -139,4 +141,7 @@ watch(
       </TransitionRoot>
     </div>
   </Combobox>
+  <p :class="['text-red-500 text-xs', { hidden: !error }]">
+    {{ error }}
+  </p>
 </template>
